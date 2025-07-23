@@ -4,7 +4,7 @@ const errorMiddleware = (err, req, res, next) => {
   console.log("Error Middleware");
 
   const errorMessage =
-    process.env.NODE_ENV === "development"
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
       ? err.message
       : "Something went wrong!";
 
