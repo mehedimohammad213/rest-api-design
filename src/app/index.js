@@ -6,6 +6,10 @@ const productRoutesV2 = require("../v2/routes");
 const CustomError = require("../utils/Error");
 const express = require("express");
 const app = express();
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
+const swaggerDocument = YAML.load(path.join(__dirname, '../../swagger.yaml'));
 
 app.use(
   cors({
@@ -27,6 +31,7 @@ app.use(correlationMiddleware);
 // Routes
 app.use("/api/v1", productRoutesV1);
 app.use("/api/v2", productRoutesV2);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/health", (_req, res) => {
   res.status(200).json({ message: "🚀 Catalog Service is up and running" });

@@ -1,0 +1,332 @@
+openapi: 3.0.3
+info:
+  title: Product Catalog API
+  description: RESTful API for managing a product catalog
+  version: 1.0.0
+  contact:
+    name: Mehedi
+    url: https://github.com/mehedimohammad213/rest-api-design
+servers:
+  - url: http://localhost:3006/api/v1
+    description: Local server (v1)
+
+paths:
+  /products:
+    post:
+      summary: Add a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+            example:
+              name: "Product Name"
+              description: "Product Description"
+              price: 19.99
+              sku: "SKU001"
+              status: "PUBLISHED"
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCreatedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      summary: Get all products
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Items per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort order
+        - in: query
+          name: priceMin
+          schema:
+            type: number
+          description: Minimum price
+        - in: query
+          name: priceMax
+          schema:
+            type: number
+          description: Maximum price
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /products/{id}:
+    get:
+      summary: Get a product by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update a product by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateInput'
+            example:
+              name: "Updated Name"
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductUpdateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a product by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDeleteResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  schemas:
+    ProductInput:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - sku
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        sku:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, PUBLISHED, UNLISTED]
+    ProductUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        status:
+          type: string
+          enum: [DRAFT, PUBLISHED, UNLISTED]
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/ProductInput'
+        - type: object
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    ProductCreatedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Product'
+        trace_id:
+          type: string
+    ProductResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Product'
+        trace_id:
+          type: string
+    ProductUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            links:
+              type: object
+              properties:
+                self:
+                  type: string
+                get:
+                  type: string
+                update:
+                  type: string
+                delete:
+                  type: string
+        trace_id:
+          type: string
+    ProductDeleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            sku:
+              type: string
+            links:
+              type: object
+              properties:
+                self:
+                  type: string
+                create:
+                  type: string
+                get:
+                  type: string
+        trace_id:
+          type: string
+    ProductListResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        info:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalPage:
+              type: integer
+            totalItems:
+              type: integer
+            links:
+              type: object
+              properties:
+                self:
+                  type: string
+                first:
+                  type: string
+                last:
+                  type: string
+                prev:
+                  type: string
+                  nullable: true
+                next:
+                  type: string
+                  nullable: true
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+        hints:
+          type: string
+        trace_id:
+          type: string
+  responses:
+    BadRequest:
+      description: Bad request (validation error)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
