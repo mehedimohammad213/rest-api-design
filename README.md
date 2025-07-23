@@ -7,6 +7,10 @@ A RESTful API for managing a product catalog, built with Node.js, Express, and P
 ## Table of Contents
 - [Features](#features)
 - [Getting Started](#getting-started)
+- [Docker](#docker)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Testing](#testing)
+- [Swagger API Docs](#swagger-api-docs)
 - [Environment Variables](#environment-variables)
 - [Database](#database)
 - [API Endpoints](#api-endpoints)
@@ -61,6 +65,47 @@ npx prisma migrate deploy
 npm start
 ```
 The API will be available at `http://localhost:3006`.
+
+---
+
+## Docker
+
+This project includes a Dockerfile and docker-compose setup for easy containerization.
+
+### Build and Run with Docker Compose
+```sh
+docker-compose up --build
+```
+The API will be available at `http://localhost:3006` and PostgreSQL at `localhost:5432`.
+
+### Environment Variables
+You can override environment variables in `docker-compose.yml` or with a `.env` file.
+
+---
+
+## CI/CD Pipeline
+
+GitHub Actions is used for CI/CD. The workflow:
+- Installs dependencies
+- Runs migrations
+- Runs all tests
+- Builds and pushes a Docker image to GitHub Container Registry (GHCR)
+
+See `.github/workflows/ci.yml` for details.
+
+---
+
+## Testing
+
+Unit and API tests are written using [Jest](https://jestjs.io/) and [Supertest](https://github.com/ladjs/supertest).
+
+### Run all tests
+```sh
+yarn test
+# or
+npm test
+```
+Test files are located in the `test/` directory. The test suite covers all API endpoints, including success and error cases.
 
 ---
 
@@ -294,6 +339,15 @@ curl http://localhost:3006/api/v1/products
 ## Postman Collection
 A sample Postman collection is included: `Catalog.postman_collection.json`
 - Import it into Postman to test all endpoints easily.
+
+---
+
+## Swagger API Docs
+
+Interactive API documentation is available via Swagger UI.
+
+- Open [http://localhost:3006/api-docs](http://localhost:3006/api-docs) after starting the server.
+- The OpenAPI spec is in `swagger.yaml`.
 
 ---
 
